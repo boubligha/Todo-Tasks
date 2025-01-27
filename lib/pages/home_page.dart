@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/Widgets/floatingaction_button.dart';
+import 'package:todo_app/Widgets/task_widget.dart';
 import 'package:todo_app/extentions/space_exs.dart';
-import 'package:todo_app/utils/app_strings.dart'; // Add this line to import AppStr
-import 'package:todo_app/utils/app_colors.dart'; // Add this line to import AppColors
+import 'package:todo_app/utils/app_strings.dart';
+import 'package:todo_app/utils/app_colors.dart';
+import 'package:lottie/lottie.dart';
+import 'package:todo_app/utils/constatnts.dart';
+import 'package:animate_do/animate_do.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -12,6 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<String> listTasks = ["Task 1", "Task 2", "Task 3"];
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
@@ -70,51 +75,58 @@ class _HomePageState extends State<HomePage> {
                 indent: 100,
               ),
             ),
+            //task list
             SizedBox(
               width: double.infinity,
               height: 500,
-              child: ListView.builder(
-                itemCount: 20,
+              child: listTasks.isNotEmpty? ListView.builder(
+                itemCount: listTasks.length,
                 scrollDirection: Axis.vertical,
                 itemBuilder: (context, index) {
-                  return AnimatedContainer(
-                    margin: const EdgeInsets.symmetric(horizontal: 10,vertical:8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4), // changes position of shadow
-                        ),
+                  return Dismissible(
+                    direction: DismissDirection.horizontal,
+                    key: Key(index.toString()),
+                    onDismissed: (_){
+                      setState(() {
+                        print("Task ${listTasks[index]} is deleted");
+                        listTasks.removeAt(index);
+                      });
+                    },
+                    background: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.delete, color: Colors.red,),
+                        8.w,
+                        const Text(AppStr.deletedTask, style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                        ),),
                       ],
                     ),
-                    duration: const Duration(milliseconds: 600),
-                    child: ListTile(
-                      //check or uncheck button
-                      leading: GestureDetector(
-                        onTap: () {
-                          setState(() {
-
-                          });
-                        },
-                        child : AnimatedContainer(
-                        duration: const Duration(milliseconds: 600),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondaryColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.grey,
-                            width: .8,
-                          ),
-                        ),
-                        child: const Icon(Icons.check, color: Colors.white,),
-                      ),
-                      )
-                    ),
-                  );
+                    child: TaskWidget()
+                    );
                 },
+                //if the List is Empty
+              ): Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  //Lottie Animation
+                  FadeIn(
+                    child: SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: Lottie.asset(lottieUrl,
+                        //animate: testing.isNotEmpty ? false : true
+                        ),
+                    ),
+                    ),
+                    FadeInUp(
+                      from: 30,
+                      child: const Text(
+                      AppStr.doneAllTasks,
+                    ),
+                    ),
+                  ]
               ),
             ),
           ],
